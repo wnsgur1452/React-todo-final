@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/https://github.com/wnsgur1452/React-todo-final/static/css/main.5db4f0de.css",
+    "main.js": "/https://github.com/wnsgur1452/React-todo-final/static/js/main.13a5e5f9.js",
+    "static/js/453.90bf92a5.chunk.js": "/https://github.com/wnsgur1452/React-todo-final/static/js/453.90bf92a5.chunk.js",
+    "index.html": "/https://github.com/wnsgur1452/React-todo-final/index.html",
+    "main.5db4f0de.css.map": "/https://github.com/wnsgur1452/React-todo-final/static/css/main.5db4f0de.css.map",
+    "main.13a5e5f9.js.map": "/https://github.com/wnsgur1452/React-todo-final/static/js/main.13a5e5f9.js.map",
+    "453.90bf92a5.chunk.js.map": "/https://github.com/wnsgur1452/React-todo-final/static/js/453.90bf92a5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5db4f0de.css",
+    "static/js/main.13a5e5f9.js"
+  ]
+}

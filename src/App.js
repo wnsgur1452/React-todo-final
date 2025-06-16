@@ -37,81 +37,72 @@ import TodoForm from './components/TodoForm';        // 할 일 입력 컴포넌
 // 2. localStorage에서 사용할 키 이름을 상수로 정의
 const TODOS_STORAGE_KEY = 'todos';
 
-// 3. App 컴포넌트 정의
 function App() {
-  // 4. localStorage를 사용한 상태 초기화
-  // useState의 초기값으로 콜백 함수를 사용하여 첫 렌더링 시에만 실행되도록 최적화
+  // 1단계: localStorage에서 초기 데이터 로드
   const [todos, setTodos] = useState(() => {
     try {
-      // 4-1. localStorage에서 저장된 데이터 읽기
+      // localStorage에서 데이터 읽기 시도
       const savedTodos = localStorage.getItem(TODOS_STORAGE_KEY);
-      // 4-2. 저장된 데이터가 있으면 JSON 파싱하여 반환, 없으면 빈 배열 반환
+      console.log('초기 데이터 로드:', savedTodos); // 디버깅 로그
+      
+      // 데이터가 있으면 파싱하여 반환, 없으면 빈 배열 반환
       return savedTodos ? JSON.parse(savedTodos) : [];
     } catch (error) {
-      // 4-3. 에러 발생 시 (JSON 파싱 실패 등) 빈 배열 반환
-      console.error('할 일 목록을 불러오는데 실패했습니다:', error);
+      console.error('초기 데이터 로드 실패:', error);
       return [];
     }
   });
 
-  // 5. todos 상태가 변경될 때마다 localStorage에 저장
+  // 2단계: todos 상태가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     try {
-      // 5-1. todos 배열을 JSON 문자열로 변환하여 저장
+      console.log('localStorage 저장 시도:', todos); // 디버깅 로그
       localStorage.setItem(TODOS_STORAGE_KEY, JSON.stringify(todos));
+      console.log('localStorage 저장 완료'); // 디버깅 로그
     } catch (error) {
-      // 5-2. 저장 실패 시 에러 로깅
-      console.error('할 일 목록을 저장하는데 실패했습니다:', error);
+      console.error('localStorage 저장 실패:', error);
     }
   }, [todos]); // todos가 변경될 때만 실행
 
-  // 6. 할 일 추가 함수
+  // 3단계: 할 일 추가 함수
   function addTodo(data) {
-    // 6-1. 입력값 유효성 검사
     if (!data || !data.text.trim()) {
       alert("할 일을 입력해주세요.");
       return;
     }
     
-    // 6-2. 새로운 할 일을 배열에 추가
-    setTodos([...todos, data]);
-    // 6-3. useEffect가 자동으로 triggered되어 localStorage에 저장됨
+    // 이전 상태를 기반으로 새로운 상태를 설정 (함수형 업데이트)
+    setTodos(prevTodos => {
+      console.log('할 일 추가:', data); // 디버깅 로그
+      return [...prevTodos, data];
+    });
   }
 
-  // 7. 할 일 수정 함수
+  // 4단계: 할 일 수정 함수
   function updateTodo(id, data) {
-    // 7-1. 수정할 할 일의 인덱스 찾기
-    const todoIndex = todos.findIndex((todo) => todo.id === id);
+    setTodos(prevTodos => {
+      const todoIndex = prevTodos.findIndex(todo => todo.id === id);
+      
+      if (todoIndex === -1) {
+        alert("해당 할 일을 찾을 수 없습니다.");
+        return prevTodos;
+      }
 
-    // 7-2. 할 일을 찾지 못한 경우 처리
-    if (todoIndex === -1) {
-      alert("해당 할 일을 찾을 수 없습니다.");
-      return;
-    }
-
-    // 7-3. 기존 데이터를 유지하면서 새 데이터로 업데이트
-    todos[todoIndex] = {...todos[todoIndex], ...data, id};
-
-    // 7-4. 상태 업데이트 및 자동 저장
-    setTodos([...todos]);
+      const updatedTodos = [...prevTodos];
+      updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], ...data };
+      
+      console.log('할 일 수정:', updatedTodos); // 디버깅 로그
+      return updatedTodos;
+    });
   }
 
-  // 8. 할 일 삭제 함수
+  // 5단계: 할 일 삭제 함수
   function deleteTodo(id) {
-    // 8-1. 삭제할 할 일의 인덱스 찾기
-    const todoIndex = todos.findIndex((todo) => todo.id === id);
-
-    // 8-2. 할 일을 찾지 못한 경우 처리
-    if (todoIndex === -1) {
-      alert("해당 할 일을 찾을 수 없습니다.");
-      return;
-    }
-
-    // 8-3. 해당 할 일을 제외한 새 배열 생성
-    const updatedTodos = todos.filter((todo, index) => index !== todoIndex);
-
-    // 8-4. 상태 업데이트 및 자동 저장
-    setTodos(updatedTodos);
+    setTodos(prevTodos => {
+      const updatedTodos = prevTodos.filter(todo => todo.id !== id);
+      console.log('할 일 삭제 후:', updatedTodos); // 디버깅 로그
+      return updatedTodos;
+    });
   }
 
   // 9. UI 렌더링

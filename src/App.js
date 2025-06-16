@@ -29,101 +29,80 @@
  */
 
 // 1. 필요한 리액트 기능들을 임포트합니다.
-import React, { useState, useEffect } from 'react';  // useState: 상태 관리, useEffect: 부수 효과 처리
-import styles from './App.module.css';              // CSS 모듈 스타일
-import TodoList from './components/TodoList';        // 할 일 목록 컴포넌트
-import TodoForm from './components/TodoForm';        // 할 일 입력 컴포넌트
+import React, { useState, useEffect } from 'react';
+import styles from './App.module.css';
+import TodoList from './components/TodoList';
+import TodoForm from './components/TodoForm';
 
-// 2. localStorage에서 사용할 키 이름을 상수로 정의
+// localStorage 키 정의
 const TODOS_STORAGE_KEY = 'todos';
 
 function App() {
-  // 1단계: localStorage에서 초기 데이터 로드
+  // todos 상태 초기화 - 이제 단순 배열 형태로 관리
   const [todos, setTodos] = useState(() => {
     try {
-      // localStorage에서 데이터 읽기 시도
       const savedTodos = localStorage.getItem(TODOS_STORAGE_KEY);
-      console.log('초기 데이터 로드:', savedTodos); // 디버깅 로그
-      
-      // 데이터가 있으면 파싱하여 반환, 없으면 빈 배열 반환
-      return savedTodos ? JSON.parse(savedTodos) : [];
+      // 저장된 데이터가 있으면 파싱, 없으면 빈 배열 반환
+      const parsedTodos = savedTodos ? JSON.parse(savedTodos) : [];
+      // 기존 객체 형태의 데이터를 배열로 변환
+      if (parsedTodos && !Array.isArray(parsedTodos)) {
+        return [];
+      }
+      return parsedTodos;
     } catch (error) {
       console.error('초기 데이터 로드 실패:', error);
       return [];
     }
   });
 
-  // 2단계: todos 상태가 변경될 때마다 localStorage에 저장
+  // todos 상태가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     try {
-      console.log('localStorage 저장 시도:', todos); // 디버깅 로그
       localStorage.setItem(TODOS_STORAGE_KEY, JSON.stringify(todos));
-      console.log('localStorage 저장 완료'); // 디버깅 로그
     } catch (error) {
       console.error('localStorage 저장 실패:', error);
     }
-  }, [todos]); // todos가 변경될 때만 실행
+  }, [todos]);
 
-  // 3단계: 할 일 추가 함수
-  function addTodo(data) {
-    if (!data || !data.text.trim()) {
-      alert("할 일을 입력해주세요.");
-      return;
-    }
-    
-    // 이전 상태를 기반으로 새로운 상태를 설정 (함수형 업데이트)
-    setTodos(prevTodos => {
-      console.log('할 일 추가:', data); // 디버깅 로그
-      return [...prevTodos, data];
-    });
-  }
-
-  // 4단계: 할 일 수정 함수
-  function updateTodo(id, data) {
+  // props로 전달할 콜백 함수들을 useCallback으로 메모이제이션
+  const handleUpdate = (id, data) => {
     setTodos(prevTodos => {
       const todoIndex = prevTodos.findIndex(todo => todo.id === id);
-      
       if (todoIndex === -1) {
         alert("해당 할 일을 찾을 수 없습니다.");
         return prevTodos;
       }
-
-      const updatedTodos = [...prevTodos];
-      updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], ...data };
-      
-      console.log('할 일 수정:', updatedTodos); // 디버깅 로그
-      return updatedTodos;
+      const newTodos = [...prevTodos];
+      newTodos[todoIndex] = { ...newTodos[todoIndex], ...data };
+      return newTodos;
     });
-  }
+  };
 
-  // 5단계: 할 일 삭제 함수
-  function deleteTodo(id) {
-    setTodos(prevTodos => {
-      const updatedTodos = prevTodos.filter(todo => todo.id !== id);
-      console.log('할 일 삭제 후:', updatedTodos); // 디버깅 로그
-      return updatedTodos;
-    });
-  }
+  const handleDelete = (id) => {
+    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+  };
 
-  // 9. UI 렌더링
+  const handleAdd = (data) => {
+    if (!data || !data.text.trim()) {
+      alert("할 일을 입력해주세요.");
+      return;
+    }
+    setTodos(prevTodos => [...prevTodos, { ...data, id: Date.now() }]);
+  };
+
   return (
-    // 9-1. 전체 앱을 감싸는 컨테이너
     <div className={styles.container}>
-      {/* 9-2. 앱 제목 */}
       <h1 className={styles.title}>My Tasks</h1>
-
-      {/* 9-3. 할 일 입력 폼 */}
-      <TodoForm onAdd={addTodo} />
-
-      {/* 9-4. 할 일 목록 */}
+      <TodoForm onAdd={handleAdd} />
       <TodoList 
         items={todos}
-        onUpdate={updateTodo}
-        onDelete={deleteTodo}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+        listTitle="오늘의 할 일"
+        emptyMessage="새로운 할 일을 추가해보세요!"
       />
     </div>
   );
 }
 
-// 10. App 컴포넌트 내보내기
 export default App;

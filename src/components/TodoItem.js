@@ -1,19 +1,19 @@
+import React from 'react';
 import styles from './TodoItem.module.css';
 
 // 1. TodoItem 컴포넌트 정의: 개별 할 일 항목을 표시하는 컴포넌트입니다.
 // props로 item(할 일 데이터), onDelete(삭제 함수), onUpdate(수정 함수)를 받습니다.
 function TodoItem(props){
-    
+
     // 2. 삭제 기능을 처리하는 함수입니다.
     // 사용자가 삭제 버튼을 클릭하면 호출됩니다.
-    function handleDelete() {
-        // 2-1. props로 받은 onDelete 함수를 호출하여 현재 항목의 id를 전달합니다.
+    const handleDelete = () => {
         props.onDelete(props.item.id);
-    }
+    };
 
     // 3. 수정 기능을 처리하는 함수입니다.
     // 사용자가 수정 버튼을 클릭하면 호출됩니다.
-    function handleUpdate() {
+    const handleUpdate = () => {
         // 3-1. prompt 창을 띄워 사용자로부터 새로운 텍스트를 입력받습니다.
         // 기본값으로 현재 할 일 텍스트를 보여줍니다.
         const newText = prompt('새로운 할 일을 입력하세요:', props.item.text);
@@ -35,7 +35,7 @@ function TodoItem(props){
 
     // 4. 완료 상태 토글 기능을 처리하는 함수입니다.
     // 체크박스 상태가 변경될 때 호출됩니다.
-    function handleToggle(){
+    const handleToggle = () => {
         // 4-1. 현재 완료 상태의 반대값을 계산합니다.
         const newCompleted = !props.item.completed;
         // 4-2. props로 받은 onUpdate 함수를 호출하여 완료 상태를 업데이트합니다.
@@ -47,37 +47,35 @@ function TodoItem(props){
         // 5-1. 할 일 항목을 감싸는 div 컨테이너
         <div className={styles.todoItem}>
             {/* 5-2. 할 일 텍스트를 표시합니다. */}
-            <div className={styles.todoContent}>
-                <p className={styles.todoText}>{props.item.text}</p>
-                {/* 5-3. 완료 상태를 표시합니다. 완료 여부에 따라 스타일이 다르게 적용됩니다. */}
-                <p className={`${styles.todoStatus} ${props.item.completed ? styles.completed : styles.incomplete}`}>
-                    완료 여부: {props.item.completed ? '완료' : '미완료'}
-                </p>
-            </div>
-
-            {/* 5-4. 완료 상태를 토글하는 체크박스입니다. */}
-            <input 
+            <input
                 type="checkbox"
-                className={styles.checkbox}
                 checked={props.item.completed}
                 onChange={handleToggle}
-            />
-
-            {/* 5-5. 수정 버튼입니다. */}
-            <button 
-                className={`${styles.button} ${styles.editButton}`}
-                onClick={handleUpdate}
-            >
-                수정
-            </button>
-
-            {/* 5-6. 삭제 버튼입니다. */}
-            <button 
-                className={`${styles.button} ${styles.deleteButton}`}
-                onClick={handleDelete}
-            >
-                삭제
-            </button>
+                className={styles.checkbox}
+            />            <div className={styles.todoContent}>
+                <span className={`${styles.todoText} ${props.item.completed ? styles.completed : styles.incomplete}`}>
+                    {props.item.text}
+                </span>
+            </div>
+            <div className={styles.todoActions}>
+                <span className={`${styles.status} ${props.item.completed ? styles.completed : styles.incomplete}`}>
+                    {props.item.completed ? '완료' : '미완료'}
+                </span>
+                {/* 5-5. 수정 버튼입니다. */}
+                <button
+                    onClick={handleUpdate}
+                    className={`${styles.button} ${styles.editButton}`}
+                >
+                    수정
+                </button>
+                {/* 5-6. 삭제 버튼입니다. */}
+                <button
+                    onClick={handleDelete}
+                    className={`${styles.button} ${styles.deleteButton}`}
+                >
+                    삭제
+                </button>
+            </div>
         </div>
     )
 }
